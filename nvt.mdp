@@ -1,0 +1,36 @@
+; Run control
+integrator          	= md
+nsteps              	= 1000000
+dt                  	= 0.001
+
+; Output control
+nstxout           	= 1000
+nstenergy           	= 200
+
+; Neighbor searching
+cutoff-scheme       	= Verlet
+nstlist             	= 10
+pbc                 	= xyz
+rlist               	= 1.4
+
+; Van der Waals
+vdwtype             	= Cut-off
+vdw-modifier        	= Potential-shift
+rvdw                	= 1.4
+DispCorr            	= EnerPres
+
+; Electrostatics
+coulombtype         	= PME
+coulomb-modifier    	= Potential-shift
+rcoulomb            	= 1.4
+
+; Temperature coupling
+tcoupl              	= v-rescale
+tc-grps             	= System
+tau_t               	= 0.1
+ref_t               	= 300
+
+; Velocity generation
+gen_vel			= yes
+gen-temp	    	= 300.0
+gen-seed            	= -1

@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import matplotlib.pyplot as plt
-import math 
+import numpy as np
 import random
 import time
 
@@ -24,6 +24,7 @@ limVar=0 #Limite do quanto a temperatura da camisa consegue variar em 1 segundo
 tCamOld=tCam
 
 failure=0
+medianGain=0
 
 massReat=10000  # massa do reator     unidade = kg
 
@@ -36,6 +37,9 @@ timeCounter=[]
 tempsR=[]
 tempsC=[]
 failureCounter=[]
+gainCounter=[]
+
+critFailure=False
 
 while True:
     eReat=tReat*cpReat*massReat     #Energia dentro do reator
@@ -43,32 +47,49 @@ while True:
     eReat+=tEntr*fReat*cpReat       #Energia de F1
 
     eReat+=(tCam-tReat)*timeCam*coefG #Energia da camisa
+    
+    if not critFailure:
+        eReat+=500000* np.exp(-((tReat - 308) ** 2) / (2 * 5.75 ** 2))
+        medianGain+=500000* np.exp(-((tReat - 308) ** 2) / (2 * 5.75 ** 2))    #Energia da reação(exotérmica)
+    else:
+        critTimeout-=1
+        failure+=1
+        print("FAILURE")
+        if critTimeout==0:
+            critFailure=False                                        #Timeout for above critical
 
-    tReat=eReat/(cpReat*massReat)
+
+
+    tReat=eReat/(cpReat*massReat)  
 
     luck=random.randint(0,100)
     if luck<50:
+        luck=random.randint(0,1)
+        luck=luck*random.randint(-1,1)       #sistema de pertubações
+        tReat+=luck
+    elif luck<80:
         luck=random.randint(0,2)
         luck=luck*random.randint(-1,1)
         tReat+=luck
-    elif luck<80:
-        luck=random.randint(0,5)
-        luck=luck*random.randint(-1,1)
-        tReat+=luck
     elif luck<99:
-        luck=random.randint(0,10)
+        luck=random.randint(0,3)
         luck=luck*random.randint(-1,1)
         tReat+=luck
     else:
-        luck=random.randint(0,15)
+        luck=random.randint(0,5)
         luck=luck*random.randint(-1,1)
         tReat+=luck
+
+    if tReat>313 or tReat<290:
+        print("Failure")
+        critFailure=True
+        critTimeout=10
 
     eReatIdeal=tIdeal*cpReat*massReat
     eReat=tReat*cpReat*massReat
     tCamOld=tCam
 
-    tCam=tReat-((eReat-eReatIdeal)/(timeCam*coefG))    
+    tCam=tReat-((eReat-eReatIdeal)/(timeCam*coefG))
 
     if abs(tCam-tCamOld)>limVar:
         if tCam>tCamOld:
@@ -83,13 +104,14 @@ while True:
     timeCounter.append(n)
     tempsC.append(tCam)
 
-    if tReat>tCrit: 
+    #if tReat>tCrit: 
         #messagebox.showwarning("Warning", "Temperature above critical!")
-        failure+=1
-    if tReat<tMin:
+    #if tReat<tMin:
         #messagebox.showwarning("Warning", "Temperature below minimum!") '''
-        failure+=1
+
     if n==3000 or n==6000 or n==9000 or n==12000:
+        gainCounter.append(medianGain/3000)
+        medianGain=0
         failureCounter.append(failure)
         failure=0
     time.sleep(0)
@@ -104,6 +126,12 @@ while True:
         print(f'Falhas com variação de temperatura da camisa por segundo=10: {failureCounter[1]}')
         print(f'Falhas com variação de temperatura da camisa por segundo=100: {failureCounter[2]}')
         print(f'Falhas com variação de temperatura da camisa por segundo=ilimitado: {failureCounter[3]}')
+
+        print(f'Ganho com variação da temperatura da camisa por segundo=0: {gainCounter[0]}')
+        print(f'Ganho com variação de temperatura da camisa por segundo=10: {gainCounter[1]}')
+        print(f'Ganhp com variação de temperatura da camisa por segundo=100: {gainCounter[2]}')
+        print(f'Ganho com variação de temperatura da camisa por segundo=ilimitado: {gainCounter[3]}')
+
         plt.figure(figsize=(8, 5))
         plt.plot(timeCounter, tempsR, marker='o',markersize=1, color='blue')
         #plt.plot(timeCounter, tempsC, linestyle='--',linewidth=1, color='red')
@@ -114,5 +142,6 @@ while True:
         plt.axvline(x=9000, color='green', linestyle='-', linewidth=2, )
         plt.grid()
         plt.show()
+        break
 
     n+=1

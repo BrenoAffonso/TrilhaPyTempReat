@@ -194,7 +194,7 @@ tMin=290 # temperatura mínima         unidade = Kelvin
 #  C+B-> D (produto final)
 constA=0.03
 constD=0.02
-concsReat=concsInit
+concsReat=concsInit.copy()
 
 
 
@@ -358,7 +358,7 @@ for n in range(lenOfTest*4+1):
             else:
                 ReacRatesReduced[1].append(None)
 
-        fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+        fig, axes = plt.subplots(2, 2, figsize=(12, 10))
         axes = axes.flatten()
 
         axes[0].plot(timeCounter, tempsR, marker='o',markersize=1, color='blue')
@@ -397,18 +397,16 @@ for n in range(lenOfTest*4+1):
         axes[3].axvline(x=lenOfTest*2*dtime, color='green', linestyle='-', linewidth=1, )
         axes[3].axvline(x=lenOfTest*3*dtime, color='green', linestyle='-', linewidth=1, )
 
-        fig.text(0.5, 0.01, f'''Molar flow of D with no control= {vazMed[0]:.4f} mol/s | Conversion rate of A into D of {(vazMed[0]/(fReat*concsIn[0]))*100:.4f}%| Time spent in cooldown = {100*(failureCounter[0]/lenOfTest):.4f}%\n 
+        fig.text(0.5, 0.02, f'''Molar flow of D with no control= {vazMed[0]:.4f} mol/s | Conversion rate of A into D of {(vazMed[0]/(fReat*concsIn[0]))*100:.4f}%| Time spent in cooldown = {100*(failureCounter[0]/lenOfTest):.4f}%\n 
                  Molar flow of D with variance limit at {camLims[1]}= {vazMed[1]:.4f} mol/s | Conversion rate of A into D of {(vazMed[1]/(fReat*concsIn[0]))*100:.4f}%| Time spent in cooldown = {100*(failureCounter[1]/lenOfTest):.4f}% \n
                  Molar flow of D with variance limit at {camLims[2]}= {vazMed[2]:.4f} mol/s | Conversion rate of A into D of {(vazMed[2]/(fReat*concsIn[0]))*100:.4f}%| Time spent in cooldown = {100*(failureCounter[2]/lenOfTest):.4f}%\n
-                 Molar flow of D with variance limit at {camLims[3]}= {vazMed[3]:.4f} mol/s | Conversion rate of A into D of {(vazMed[3]/(fReat*concsIn[0]))*100:.4f}%| Time spent in cooldown = {100*(failureCounter[3]/lenOfTest):.4f}%''',
+                 Molar flow of D with variance limit at {camLims[3]}= {vazMed[3]:.4f} mol/s | Conversion rate of A into D of {(vazMed[3]/(fReat*concsIn[0]))*100:.4f}%| Time spent in cooldown = {100*(failureCounter[3]/lenOfTest):.4f}%\n
+                 Lenght of cycles = {lenOfTest} | Cooling limits in order: {camLims[0]}K /{camLims[1]}K /{camLims[2]}K /{camLims[3]}K | Perturbation intensity at {pertInt} \n
+                 Initial concentration: [A]={concsInit[0]:.2f}mol/kg / [B]={concsInit[1]:.2f}mol/kg / [C]={concsInit[2]:.2f}mol/kg / [D]={concsInit[3]:.2f}mol/kg\n
+                 Massa do reator={massReat}kg | Vazão das correntes do reator ={fReat}kg/s\n 
+                 Concentrações de entrada: [A]={concsIn[0]:.2f}mol/kg / [B]={concsIn[1]:.2f}mol/kg / [C]={concsIn[2]:.2f}mol/kg / [D]={concsIn[3]:.2f}mol/kg''',
          wrap=True, horizontalalignment='center', fontsize=10)
-      
-    #    fig.text(0.5, 0, f'''Lenght of cycles = {lenOfTest} | Cooling limits in order: {camLims[0]}K /{camLims[1]}K /{camLims[2]}K /{camLims[3]}K | Perturbation intensity at {pertInt} \n
-    #                         Initial concentration: [A]={concsInit[0]}mol/kg / [B]={concsInit[1]}mol/kg / [C]={concsInit[2]}mol/kg / [D]={concsInit[3]}mol/kg | Massa do reator={massReat}kg | Vazão das correntes do reator ={fReat}kg/s 
-    #                         Concentrações de entrada: [A]={concsIn[0]}mol/kg / [B]={concsIn[1]}mol/kg / [C]={concsIn[2]}mol/kg / [D]={concsIn[3]}mol/kg''',
-    #     wrap=True, horizontalalignment='center', fontsize=10)
-    #    fig.subplots_adjust(bottom=0.2)
-    #    #plt.tight_layout()
+        fig.subplots_adjust(bottom=0.3)
 
         plt.grid()
 
